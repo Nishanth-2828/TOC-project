@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GrammarLink: CFG–PDA Equivalence Validator — Verify Context-Free Grammar membership using CYK algorithm and Pushdown Automata simulation with visual step-by-step breakdown.">
+    <title>GrammarLink — CFG–PDA Equivalence Validator</title>
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
+<nav class="navbar">
+    <a class="navbar-brand" href="/">
+        <div class="brand-icon">⚡</div>
+        <div>
+            <span class="brand-text">GrammarLink</span>
+            <span class="brand-sub">CFG–PDA Validator</span>
+        </div>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/" class="active">🏠 Home</a></li>
+        <li><a href="/validator">🔬 Validator</a></li>
+        <li><a href="/about">📖 About</a></li>
+        <li><a href="/validator" class="nav-cta">Launch Validator →</a></li>
+    </ul>
+</nav>
+
+<!-- ══ HERO ════════════════════════════════════════════════════════ -->
+<section class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            VIT Chennai · BITE306L · Theory of Computation
+        </div>
+
+        <h1 class="hero-title">
+            Prove that<br>
+            <span class="gradient-text">CFG ≡ PDA</span><br>
+            Visually
+        </h1>
+
+        <p class="hero-subtitle">
+            Input any Context-Free Grammar, test a string, and watch
+            <strong>CYK parsing</strong> and <strong>PDA simulation</strong> independently
+            agree — validating the CFG–PDA equivalence theorem in real time.
+        </p>
+
+        <div class="hero-actions">
+            <a href="/validator" class="btn btn-primary btn-lg">
+                ⚡ Launch Validator
+            </a>
+            <a href="/about" class="btn btn-secondary btn-lg">
+                📖 Learn How It Works
+            </a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-number">2</span>
+                <span class="stat-label">Methods</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">6</span>
+                <span class="stat-label">Preset Grammars</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">5</span>
+                <span class="stat-label">CNF Steps</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">∞</span>
+                <span class="stat-label">Custom Grammars</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FEATURES ════════════════════════════════════════════════════ -->
+<section class="section" id="features">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">What It Does</span>
+            <h2 class="section-title">Complete TOC Validation Pipeline</h2>
+            <p class="section-subtitle">Every module from the project specification, fully implemented.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon" style="background:rgba(108,99,255,0.15)">📝</div>
+                <h3 class="feature-title">Grammar Input & Parsing</h3>
+                <p class="feature-desc">
+                    Type any CFG in standard notation (A → BC | a | ε). Validates syntax,
+                    identifies non-terminals, terminals, and start symbol automatically.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background:rgba(0,212,255,0.15)">🔄</div>
+                <h3 class="feature-title">CNF Conversion</h3>
+                <p class="feature-desc">
+                    Full 5-step Chomsky Normal Form conversion: new start symbol,
+                    ε-elimination, unit production removal, useless symbol cleanup, and binarization.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background:rgba(0,255,136,0.15)">📊</div>
+                <h3 class="feature-title">CYK Algorithm</h3>
+                <p class="feature-desc">
+                    O(n³) dynamic programming parser with interactive triangular table.
+                    Every cell shows which non-terminals derive each substring.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background:rgba(255,149,0,0.15)">📚</div>
+                <h3 class="feature-title">PDA Simulation</h3>
+                <p class="feature-desc">
+                    Stack-based pushdown automaton simulation with full step-by-step
+                    trace showing state, stack contents, and transitions at each moment.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background:rgba(255,107,107,0.15)">🌳</div>
+                <h3 class="feature-title">Parse Tree Visualization</h3>
+                <p class="feature-desc">
+                    Interactive canvas rendering of parse trees derived from CYK backtracking.
+                    Detects and displays multiple trees for ambiguous grammars.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon" style="background:rgba(168,85,247,0.15)">⚡</div>
+                <h3 class="feature-title">Performance Analytics</h3>
+                <p class="feature-desc">
+                    Real-time nanosecond-precision timing comparison between CYK and PDA.
+                    Visualize algorithm efficiency side by side.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ HOW IT WORKS ════════════════════════════════════════════════ -->
+<section class="section" style="padding-top:2rem">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">The Pipeline</span>
+            <h2 class="section-title">From Grammar to Verdict</h2>
+        </div>
+        <div style="display:flex;gap:1rem;max-width:900px;margin:0 auto;flex-wrap:wrap;justify-content:center">
+            <div th:each="step,iter : ${ {'Parse CFG','Convert to CNF','CYK Parse','PDA Simulate','Compare'} }">
+                <div style="display:flex;align-items:center;gap:0.75rem">
+                    <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0">
+                        <span th:text="${iter.index + 1}">1</span>
+                    </div>
+                    <span style="font-weight:600;font-size:0.9rem" th:text="${step}">Step</span>
+                    <span style="color:var(--text-muted);font-size:1.2rem" th:unless="${iter.last}">→</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ QUICK TRY ═══════════════════════════════════════════════════ -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Quick Start</span>
+            <h2 class="section-title">Try These Examples</h2>
+        </div>
+        <div class="presets-grid" style="max-width:900px;margin:0 auto">
+            <div class="preset-card" th:each="preset : ${presets}" th:data-preset="${preset.id}"
+                 onclick="window.location.href='/validator?preset=' + this.dataset.preset">
+                <div class="preset-name" th:text="${preset.name}">Preset Name</div>
+                <div class="preset-desc" th:text="${preset.description}">Description</div>
+                <div class="preset-examples">
+                    <span class="preset-tag" th:text="'✓ ' + ${preset.exampleAccepted}">accepted</span>
+                    <span class="preset-tag rejected" th:text="'✗ ' + ${preset.exampleRejected}">rejected</span>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:2rem">
+            <a href="/validator" class="btn btn-primary">Open Full Validator →</a>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════ -->
+<footer class="footer">
+    <p>
+        <strong>GrammarLink</strong> — CFG–PDA Equivalence Validator &nbsp;|&nbsp;
+        BITE306L Theory of Computation &nbsp;|&nbsp; VIT Chennai<br>
+        Nishanth M (24BIT0216) &amp; Sanjay S (24BIT0315) &nbsp;|&nbsp;
+        <a href="/about">About this project</a>
+    </p>
+</footer>
+
+<script th:src="@{/static/js/app.js}"></script>
+</body>
+</html>

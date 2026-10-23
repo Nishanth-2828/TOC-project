@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About GrammarLink — Theory of Computation project by VIT Chennai students implementing CFG-PDA equivalence validation.">
+    <title>About — GrammarLink CFG–PDA</title>
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
+<nav class="navbar">
+    <a class="navbar-brand" href="/">
+        <div class="brand-icon">⚡</div>
+        <div>
+            <span class="brand-text">GrammarLink</span>
+            <span class="brand-sub">CFG–PDA Validator</span>
+        </div>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/">🏠 Home</a></li>
+        <li><a href="/validator">🔬 Validator</a></li>
+        <li><a href="/about" class="active">📖 About</a></li>
+        <li><a href="/validator" class="nav-cta">Launch Validator →</a></li>
+    </ul>
+</nav>
+
+<div class="about-layout">
+
+    <!-- Project Header -->
+    <div style="text-align:center;margin-bottom:3rem">
+        <div style="font-size:4rem;margin-bottom:1rem">⚡</div>
+        <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.5rem;font-weight:800;margin-bottom:0.75rem">
+            <span style="background:linear-gradient(135deg,var(--accent-primary),var(--accent-secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">GrammarLink</span>
+        </h1>
+        <p style="color:var(--text-secondary);font-size:1rem;line-height:1.7;max-width:500px;margin:0 auto">
+            CFG–PDA Equivalence Validator<br>
+            BITE306L — Theory of Computation<br>
+            Vellore Institute of Technology, Chennai
+        </p>
+    </div>
+
+    <!-- Team -->
+    <div class="about-section">
+        <h2>👥 Team Members</h2>
+        <div class="team-grid">
+            <div class="team-card">
+                <div class="team-avatar">NM</div>
+                <div class="team-name">Nishanth M</div>
+                <div class="team-reg">24BIT0216</div>
+                <div class="team-branch">B.Tech Information Technology</div>
+            </div>
+            <div class="team-card">
+                <div class="team-avatar" style="background:linear-gradient(135deg,var(--accent-secondary),var(--accent-green))">SS</div>
+                <div class="team-name">Sanjay S</div>
+                <div class="team-reg">24BIT0315</div>
+                <div class="team-branch">B.Tech Information Technology</div>
+            </div>
+        </div>
+        <div style="margin-top:1rem;text-align:center;font-size:0.85rem;color:var(--text-muted)">
+            Faculty Guide: <strong style="color:var(--text-secondary)">Raghavan R</strong> &nbsp;·&nbsp;
+            Slot: <span class="mono" style="color:var(--accent-primary)">A2+TA2+TAA2</span> &nbsp;·&nbsp;
+            Semester: Fall 2026–27
+        </div>
+    </div>
+
+    <!-- Project Overview -->
+    <div class="about-section">
+        <h2>📋 Project Overview</h2>
+        <div class="card" style="margin-bottom:1rem">
+            <p style="color:var(--text-secondary);line-height:1.8;font-size:0.95rem">
+                GrammarLink is a web-based educational tool that validates whether a given string belongs to a
+                Context-Free Language using <strong style="color:var(--text-primary)">two independent formal methods</strong>:
+                the <em>CYK parsing algorithm</em> (via Chomsky Normal Form) and a
+                <em>Pushdown Automaton simulation</em> (stack-based state transitions).
+            </p>
+            <p style="color:var(--text-secondary);line-height:1.8;font-size:0.95rem;margin-top:0.75rem">
+                Both methods independently accept or reject the input, visually demonstrating and proving the
+                <strong style="color:var(--accent-primary)">CFG–PDA Equivalence Theorem</strong> — the foundational result
+                that Context-Free Grammars and Pushdown Automata recognize exactly the same class of languages.
+            </p>
+        </div>
+    </div>
+
+    <!-- Algorithm Pipeline -->
+    <div class="about-section">
+        <h2>🔬 Algorithm Pipeline</h2>
+        <div class="algo-timeline">
+
+            <div class="algo-step">
+                <h4>Step 1 — Grammar Parsing</h4>
+                <p>Parse raw CFG text into formal model G = (V, Σ, P, S). Validates syntax,
+                   identifies non-terminals, terminals, and start symbol.</p>
+            </div>
+
+            <div class="algo-step">
+                <h4>Step 2 — CNF Conversion (5 Sub-steps)</h4>
+                <p>
+                    2a. New start symbol S₀ → S<br>
+                    2b. Eliminate ε-productions (find nullable variables)<br>
+                    2c. Eliminate unit productions (A → B chains)<br>
+                    2d. Eliminate useless symbols (non-generating / unreachable)<br>
+                    2e. Convert to binary form (A → BC or A → a)
+                </p>
+            </div>
+
+            <div class="algo-step">
+                <h4>Step 3 — CYK Parsing</h4>
+                <p>O(n³|G|) dynamic programming. Fill triangular table T[i][j] = non-terminals
+                   deriving w[i..j]. Accept iff start symbol ∈ T[1][n].</p>
+            </div>
+
+            <div class="algo-step">
+                <h4>Step 4 — PDA Simulation</h4>
+                <p>Construct PDA from original CFG via standard construction. Simulate DFS
+                   backtracking over stack transitions. Record full step-by-step trace.</p>
+            </div>
+
+            <div class="algo-step">
+                <h4>Step 5 — Equivalence Verification</h4>
+                <p>Compare CYK and PDA results. They must agree (CFG–PDA Equivalence Theorem).
+                   Detect ambiguity by counting distinct parse trees.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="about-section">
+        <h2>🛠 Technology Stack</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem">
+            <th:block th:each="tech : ${ {
+                'Java 17|Core language|☕',
+                'Spring Boot 3|Web framework|🌱',
+                'Thymeleaf|Template engine|🍃',
+                'Maven 3.9|Build tool|📦',
+                'HTML5 / CSS3|Frontend UI|🎨',
+                'JavaScript|Interactivity|⚡',
+                'JUnit 5|Testing|🧪',
+                'Git & GitHub|Version control|📁'
+            } }">
+                <div class="card" style="text-align:center;padding:1.25rem" th:with="parts=${tech.split('\|')}">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem" th:text="${parts[2]}">☕</div>
+                    <div style="font-weight:700;margin-bottom:0.25rem;font-size:0.9rem" th:text="${parts[0]}">Name</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)" th:text="${parts[1]}">Role</div>
+                </div>
+            </th:block>
+        </div>
+    </div>
+
+    <!-- Module Architecture -->
+    <div class="about-section">
+        <h2>🏗 System Modules</h2>
+        <div style="display:flex;flex-direction:column;gap:0.75rem">
+            <div th:each="mod : ${ {
+                'Module 1|User Interface|HTML/CSS/JS frontend with Thymeleaf rendering',
+                'Module 2|Grammar Input|Parses CFG text into formal grammar model',
+                'Module 3|Input Validation|Validates grammar syntax and terminal characters',
+                'Module 4|CNF Conversion|Full 5-step Chomsky Normal Form algorithm',
+                'Module 5|CYK Parser|Dynamic programming membership testing',
+                'Module 6|PDA Simulator|DFS backtracking stack-based simulation',
+                'Module 7|Result Display|Visualizes tables, stack traces, parse trees',
+                'Module 8|Ambiguity Detector|Counts parse trees to detect ambiguous grammars'
+            } }" th:with="parts=${mod.split('\|')}">
+                <div class="card" style="display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent-primary);background:rgba(108,99,255,0.1);padding:4px 8px;border-radius:6px;white-space:nowrap" th:text="${parts[0]}">M1</span>
+                    <div>
+                        <div style="font-weight:600;font-size:0.9rem;margin-bottom:2px" th:text="${parts[1]}">Title</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted)" th:text="${parts[2]}">Desc</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;padding:2rem 0">
+        <a href="/validator" class="btn btn-primary btn-lg">
+            ⚡ Open Validator Now
+        </a>
+    </div>
+
+</div>
+
+<footer class="footer">
+    <p>GrammarLink · BITE306L Theory of Computation · VIT Chennai ·
+       Nishanth M (24BIT0216) &amp; Sanjay S (24BIT0315) · Faculty: Raghavan R</p>
+</footer>
+
+<script th:src="@{/static/js/app.js}"></script>
+</body>
+</html>

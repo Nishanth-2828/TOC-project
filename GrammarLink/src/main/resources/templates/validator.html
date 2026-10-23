@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GrammarLink Validator — Input your CFG, test a string, and get CYK parsing + PDA simulation results side by side.">
+    <title>Validator — GrammarLink CFG–PDA</title>
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
+<nav class="navbar">
+    <a class="navbar-brand" href="/">
+        <div class="brand-icon">⚡</div>
+        <div>
+            <span class="brand-text">GrammarLink</span>
+            <span class="brand-sub">CFG–PDA Validator</span>
+        </div>
+    </a>
+    <ul class="nav-links">
+        <li><a href="/">🏠 Home</a></li>
+        <li><a href="/validator" class="active">🔬 Validator</a></li>
+        <li><a href="/about">📖 About</a></li>
+    </ul>
+</nav>
+
+<!-- ══ LOADING OVERLAY ════════════════════════════════════════════ -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Processing Grammar...</div>
+    <div class="loading-steps" id="loadingStep">Initializing pipeline...</div>
+</div>
+
+<!-- ══ TOAST CONTAINER ════════════════════════════════════════════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══ VALIDATOR LAYOUT ════════════════════════════════════════════ -->
+<div class="validator-layout">
+
+    <!-- ────── SIDEBAR ────────────────────────────────────────────── -->
+    <aside class="validator-sidebar">
+
+        <!-- Grammar Input Card -->
+        <div class="card">
+            <div class="card-title">
+                <div class="card-icon purple">📝</div>
+                Grammar Input
+            </div>
+
+            <form id="validateForm">
+                <div class="form-group">
+                    <label class="form-label" for="grammarInput">
+                        Production Rules <span>(one per line)</span>
+                    </label>
+                    <textarea
+                        id="grammarInput"
+                        name="grammarText"
+                        placeholder="S -> a S b | a b&#10;A -> a A | a&#10;&#10;# Use | to separate alternatives&#10;# ε or eps for empty string"
+                        rows="8"
+                        spellcheck="false"
+                        autocomplete="off"></textarea>
+                    <div class="input-hint">Format: A → BC | a | ε &nbsp;·&nbsp; Non-terminals = UPPERCASE</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="testInput">
+                        Test String
+                        <span id="testCharCount" style="float:right;font-weight:400">0 chars</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="testInput"
+                        name="testString"
+                        placeholder="e.g. aabb or (())"
+                        autocomplete="off"
+                        spellcheck="false">
+                    <div class="input-hint">Leave empty to test ε (empty string)</div>
+                </div>
+
+                <div style="display:flex;gap:0.75rem">
+                    <button type="submit" class="btn btn-primary" style="flex:1" id="validateBtn">
+                        ⚡ Validate
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearBtn" title="Clear all">
+                        🗑
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Presets Card -->
+        <div class="card">
+            <div class="card-title">
+                <div class="card-icon cyan">📚</div>
+                Preset Grammars
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+                <div class="preset-card"
+                     th:each="preset : ${presets}"
+                     th:data-preset="${preset.id}">
+                    <div class="preset-name" th:text="${preset.name}">Name</div>
+                    <div class="preset-desc" th:text="${preset.description}">Desc</div>
+                    <div class="preset-examples">
+                        <span class="preset-tag" th:text="'✓ ' + ${preset.exampleAccepted}">acc</span>
+                        <span class="preset-tag rejected" th:text="'✗ ' + ${preset.exampleRejected}">rej</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grammar Notation Help Card -->
+        <div class="card">
+            <div class="card-title">
+                <div class="card-icon green">💡</div>
+                Notation Guide
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.82rem;color:var(--text-secondary)">
+                <div><span class="mono" style="color:var(--accent-primary)">S -> AB</span> — Non-terminal derivation</div>
+                <div><span class="mono" style="color:var(--accent-primary)">A -> a</span> — Terminal production</div>
+                <div><span class="mono" style="color:var(--accent-primary)">S -> ε</span> — Empty (epsilon) production</div>
+                <div><span class="mono" style="color:var(--accent-primary)">A -> a | b</span> — Multiple alternatives</div>
+                <div><span class="mono" style="color:var(--accent-primary)"># comment</span> — Ignored line</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ────── MAIN CONTENT ────────────────────────────────────────── -->
+    <main class="validator-main">
+
+        <!-- Welcome Card (shown before first validation) -->
+        <div class="card" id="welcomeCard">
+            <div style="text-align:center;padding:3rem 2rem">
+                <div style="font-size:4rem;margin-bottom:1rem">⚡</div>
+                <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;margin-bottom:0.75rem">
+                    Ready to Validate
+                </h2>
+                <p style="color:var(--text-secondary);font-size:0.9rem;max-width:400px;margin:0 auto 1.5rem;line-height:1.7">
+                    Enter your CFG grammar rules on the left, provide a test string,
+                    then click <strong>Validate</strong> to run CYK + PDA analysis.
+                </p>
+                <div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;font-size:0.8rem">
+                    <span style="padding:4px 12px;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.2);border-radius:100px;color:var(--accent-primary)">📊 CYK Table</span>
+                    <span style="padding:4px 12px;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:100px;color:var(--accent-secondary)">📚 PDA Trace</span>
+                    <span style="padding:4px 12px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.2);border-radius:100px;color:var(--accent-green)">🌳 Parse Trees</span>
+                    <span style="padding:4px 12px;background:rgba(255,149,0,0.1);border:1px solid rgba(255,149,0,0.2);border-radius:100px;color:var(--accent-orange)">⚖️ Equivalence Check</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Panel (shown after validation) -->
+        <div id="resultPanel" class="result-panel">
+
+            <!-- Verdict Banner -->
+            <div id="verdictBanner" class="verdict accepted">
+                <!-- Filled by JS -->
+            </div>
+
+            <!-- Ambiguity Banner -->
+            <div id="ambiguityBanner" class="ambiguity-banner hidden">
+                <span class="icon">⚠️</span>
+                <div class="text"><!-- filled by JS --></div>
+            </div>
+
+            <!-- ── Result Tabs ─────────────────────────────────────────── -->
+            <div class="tabs" data-group="results">
+                <button class="tab-btn active" data-tab="tab-cnf" data-group="results">🔄 CNF Conversion</button>
+                <button class="tab-btn" data-tab="tab-cyk" data-group="results">📊 CYK Table</button>
+                <button class="tab-btn" data-tab="tab-pda" data-group="results">
+                    📚 PDA Trace
+                    <span id="pdaStepCount" style="font-size:0.7rem;opacity:0.6"></span>
+                </button>
+                <button class="tab-btn" data-tab="tab-parse-tree" data-group="results">🌳 Parse Tree</button>
+                <button class="tab-btn" data-tab="tab-performance" data-group="results">⚡ Performance</button>
+            </div>
+
+            <!-- CNF Tab -->
+            <div id="tab-cnf" class="tab-content active" data-group="results">
+                <div class="card">
+                    <div class="card-title">
+                        <div class="card-icon cyan">🔄</div>
+                        Chomsky Normal Form Conversion
+                    </div>
+                    <div class="cnf-steps" id="cnfSteps"><!-- filled by JS --></div>
+                    <div class="divider"></div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;font-weight:600">
+                        Final CNF Productions:
+                    </div>
+                    <div class="cnf-productions" id="cnfProductions"><!-- filled by JS --></div>
+                </div>
+            </div>
+
+            <!-- CYK Tab -->
+            <div id="tab-cyk" class="tab-content" data-group="results">
+                <div class="card">
+                    <div class="card-title">
+                        <div class="card-icon purple">📊</div>
+                        CYK Dynamic Programming Table
+                    </div>
+                    <div id="cykTableContainer"><!-- filled by JS --></div>
+                    <div class="divider"></div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem;font-weight:600">
+                        Step-by-Step Derivation:
+                    </div>
+                    <div class="cyk-steps-list" id="cykStepsList"><!-- filled by JS --></div>
+                </div>
+            </div>
+
+            <!-- PDA Tab -->
+            <div id="tab-pda" class="tab-content" data-group="results">
+                <div class="card">
+                    <div class="card-title">
+                        <div class="card-icon orange">📚</div>
+                        Pushdown Automaton Stack Trace
+                    </div>
+                    <div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:0.8rem;color:var(--text-secondary)">
+                        <span><span style="width:10px;height:10px;background:var(--accent-green);border-radius:2px;display:inline-block;margin-right:4px"></span>Terminal match</span>
+                        <span><span style="width:10px;height:10px;background:var(--accent-primary);border-radius:2px;display:inline-block;margin-right:4px"></span>Production applied</span>
+                        <span><span style="width:10px;height:10px;background:var(--accent-green);border-radius:2px;display:inline-block;margin-right:4px;opacity:0.5"></span>Accept state</span>
+                    </div>
+                    <div class="pda-trace" id="pdaTrace"><!-- filled by JS --></div>
+                </div>
+            </div>
+
+            <!-- Parse Tree Tab -->
+            <div id="tab-parse-tree" class="tab-content" data-group="results">
+                <div class="card">
+                    <div class="card-title">
+                        <div class="card-icon green">🌳</div>
+                        Parse Tree Visualization
+                    </div>
+                    <div id="parseTreeInfo"><!-- filled by JS --></div>
+                    <canvas id="parseTreeCanvas" height="400"></canvas>
+                </div>
+            </div>
+
+            <!-- Performance Tab -->
+            <div id="tab-performance" class="tab-content" data-group="results">
+                <div class="card">
+                    <div class="card-title">
+                        <div class="card-icon orange">⚡</div>
+                        Algorithm Performance Comparison
+                    </div>
+
+                    <div class="perf-compare">
+                        <div class="perf-item">
+                            <div class="perf-algo">CYK Algorithm</div>
+                            <div class="perf-time cyk" id="cykTime">—</div>
+                            <div class="perf-unit">execution time</div>
+                        </div>
+                        <div class="perf-item">
+                            <div class="perf-algo">PDA Simulation</div>
+                            <div class="perf-time pda" id="pdaTime">—</div>
+                            <div class="perf-unit">execution time</div>
+                        </div>
+                    </div>
+
+                    <div class="perf-bar-wrapper mt-lg">
+                        <div class="perf-bar-label">
+                            <span style="color:var(--accent-primary)">● CYK</span>
+                            <span id="cykTimeFull"></span>
+                        </div>
+                        <div class="perf-bar">
+                            <div class="perf-bar-fill cyk" id="cykBar" style="width:0%"></div>
+                        </div>
+                        <div class="perf-bar-label">
+                            <span style="color:var(--accent-secondary)">● PDA</span>
+                            <span id="pdaTimeFull"></span>
+                        </div>
+                        <div class="perf-bar">
+                            <div class="perf-bar-fill pda" id="pdaBar" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.8">
+                        <strong style="color:var(--text-primary)">CYK Complexity:</strong> O(n³ × |G|) — cubic in string length<br>
+                        <strong style="color:var(--text-primary)">PDA Complexity:</strong> Variable — depends on grammar structure &amp; backtracking depth<br>
+                        <strong style="color:var(--text-primary)">Note:</strong> Both algorithms are run independently, confirming the <em>CFG–PDA equivalence theorem</em>.
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /result-panel -->
+    </main>
+</div>
+
+<footer class="footer">
+    <p>GrammarLink · BITE306L Theory of Computation · VIT Chennai ·
+        Nishanth M (24BIT0216) &amp; Sanjay S (24BIT0315)</p>
+</footer>
+
+<script th:src="@{/static/js/app.js}"></script>
+<script>
+    // Auto-load preset from URL query param
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        const preset = params.get('preset');
+        if (preset) {
+            const card = document.querySelector(`.preset-card[data-preset="${preset}"]`);
+            if (card) setTimeout(() => card.click(), 300);
+        }
+    })();
+</script>
+</body>
+</html>
